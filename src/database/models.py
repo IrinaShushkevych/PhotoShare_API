@@ -21,6 +21,8 @@ class User(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     username = Column(String(150), nullable=False)
+    firstname = Column(String(100))
+    lastname = Column(String(100))
     email = Column(String(100), nullable=False, unique=True)
     password = Column(String(20), nullable=False)
     token = Column(String(150))
