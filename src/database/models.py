@@ -27,6 +27,7 @@ class User(Base):
     password = Column(String(20), nullable=False)
     token = Column(String(150))
     role = Column(String(20), nullable=False)
+    avatar = Column(String(255))
     is_verify = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=func.now)
