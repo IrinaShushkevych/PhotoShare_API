@@ -14,7 +14,6 @@ from src.config.config import settings
 from src.config.settings import messages
 
 
-
 class Auth:
     algorithm = settings.algorithm
     secret_key = settings.secret_key
@@ -24,8 +23,8 @@ class Auth:
 
     def create_hash_password(self, password: str):
         """
-        The create_hash_password function takes a password as an argument and returns the hashed version of that password.
-        The hashing algorithm used is PBKDF2 with SHA256, which is considered to be cryptographically secure.
+        The create_hash_password function takes a password as an argument and returns the hashed version of that
+        password. The hashing algorithm used is PBKDF2 with SHA256, which is considered to be cryptographically secure.
 
         :param self: Represent the instance of the class
         :param password: str: Create a hash password
@@ -49,8 +48,9 @@ class Auth:
 
     def create_access_token(self, data: dict, expires_delta: Optional[float] = None):
         """
-        The create_access_token function creates a JWT token that contains the data passed to it.
-        The function also takes an optional expires_delta parameter, which is a datetime.timedelta object that indicates for how long the token will be valid.
+        The create_access_token function creates a JWT token that contains the data passed to it. The function also
+        takes an optional expires_delta parameter, which is a datetime.timedelta object that indicates for how long
+        the token will be valid.
 
         :param self: Refer to the current class instance
         :param data: dict: Pass the data that will be encoded into the jwt
@@ -68,10 +68,9 @@ class Auth:
 
     def create_refresh_token(self, data: dict, expires_delta: Optional[float] = None):
         """
-        The create_refresh_token function creates a refresh token.
-            Args:
-                data (dict): A dictionary containing the user's id and username.
-                expires_delta (Optional[float]): The time in seconds until the token expires. Defaults to None, which sets it to 1 day from now.
+        The create_refresh_token function creates a refresh token. Args: data (dict): A dictionary containing the
+        user's id and username. expires_delta (Optional[float]): The time in seconds until the token expires.
+        Defaults to None, which sets it to 1 day from now.
 
         :param self: Represent the instance of the class
         :param data: dict: Pass the data that will be encoded into the token
@@ -137,7 +136,7 @@ class Auth:
 
         user = self.auth_redis.get(f'user:{email}')
         if user is None:
-            user = None # get user from repository
+            user = None  # get user from repository
             if user is None:
                 raise credentials_exception
             self.auth_redis.set(f'user:{email}', pickle.dumps(user))
