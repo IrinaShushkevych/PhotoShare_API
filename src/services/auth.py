@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from src.database.connect import get_db
 from src.config.config import settings
 from src.config.settings import messages
+from src.repositories.auth import get_user_by_email
 
 
 class Auth:
@@ -107,7 +108,7 @@ class Auth:
         except JWTError:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=messages.user_error_decode_r_token)
 
-    def get_current_user(self, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db())):
+    async def get_current_user(self, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db())):
         """
         The get_current_user function is a dependency that can be injected into any endpoint function.
         It will decode the JWT token and return the user object if it exists, otherwise it will raise an exception.
@@ -136,7 +137,7 @@ class Auth:
 
         user = self.auth_redis.get(f'user:{email}')
         if user is None:
-            user = None  # get user from repository
+            user = await get_user_by_email(email, db)
             if user is None:
                 raise credentials_exception
             self.auth_redis.set(f'user:{email}', pickle.dumps(user))
@@ -145,3 +146,6 @@ class Auth:
             user = pickle.loads(user)
 
         return user
+
+
+auth_service: Auth = Auth()

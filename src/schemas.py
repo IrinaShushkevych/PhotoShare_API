@@ -4,7 +4,7 @@ from enum import Enum
 from datetime import datetime
 
 
-class Role(Enum):
+class Role(str, Enum):
     admin = 'Administrator'
     moderator = 'Moderator'
     user = 'User'
@@ -16,7 +16,7 @@ class UserModel(BaseModel):
     lastname: Optional[str] = Field(min_length=3)
     email: EmailStr
     password: str = Field(min_length=6)
-    role: Optional[Role]
+    role: Role
     avatar: Optional[str]
 
 
@@ -40,3 +40,8 @@ class UserResponse(BaseModel):
     detail: str = 'User successfully created'
     data: UserDB
 
+
+class UserUpdateModel(BaseModel):
+    username: Optional[str] = Field(min_length=3)
+    firstname: Optional[str] = Field(min_length=3)
+    lastname: Optional[str] = Field(min_length=3)

@@ -30,7 +30,7 @@ class User(Base):
     avatar = Column(String(255))
     is_verify = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=func.now)
+    created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime)
 
     photos = relationship('Photo', cascade='all, delete', backref='users')
