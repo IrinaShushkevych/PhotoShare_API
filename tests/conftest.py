@@ -7,7 +7,6 @@ from main import app
 from src.database.connect import get_db
 from src.database.models import Base
 
-
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
 
 engine = create_engine(
@@ -21,7 +20,7 @@ def session():
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
 
-    db = TestingSessionLocal(autocommit=False)
+    db = TestingSessionLocal()
     try:
         yield db
     finally:
@@ -43,10 +42,4 @@ def client(session):
 
 @pytest.fixture(scope="module")
 def user():
-    return {"username": "Test", "email": "test@example.com", "password": "qwert-11"}
-
-
-@pytest.fixture(scope="module")
-def wrong_user():
-    return {"username": "Guest", "email": "guest@example.com", "password": "qwert-11"}
-
+    return {"username": "deadpool", "email": "deadpool@example.com", "password": "123456789"}

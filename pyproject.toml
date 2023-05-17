@@ -1,8 +1,10 @@
 [tool.poetry]
-name = "PhotoShare_API"
+name = "team-1-web-photoshare"
 version = "0.1.0"
 description = ""
-authors = ["IrinaShushkevych <iraolijnyk@gmail.com>"]
+authors = ["ZatokaV <zatokav@gmail.com>"]
+readme = "README.md"
+packages = [{include = "team_1_web_photoshare"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -20,12 +22,15 @@ python-multipart = "^0.0.6"
 fastapi-limiter = "^0.1.5"
 python-dotenv = "^1.0.0"
 httpx = "^0.23.3"
-pytest-asyncio = "^0.21.0"
+cloudinary = "^1.32.0"
+qrcode = "^7.4.2"
+fastapi-jwt-auth = "^0.5.0"
 
 [tool.poetry.group.dev.dependencies]
 sphinx = "^6.1.3"
-pytest = "^7.2.2"
 pytest-cov = "^4.0.0"
+pytest = "^7.2.2"
+pytest-asyncio = "^0.21.0"
 
 [build-system]
 requires = ["poetry-core"]

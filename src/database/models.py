@@ -1,83 +1,108 @@
-from sqlalchemy import Column, String, Boolean, Integer, func
-from sqlalchemy.orm import relationship
+import enum
+
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, func, Table, Boolean
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.sql.schema import ForeignKey, Table
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql.sqltypes import DateTime
-from datetime import datetime
 
 Base = declarative_base()
 
 
-photo_m2m_tag = Table(
-    "photo_m2m_tag",
-    Base.metadata,
-    Column('id', Integer, primary_key=True),
-    Column('photo', Integer, ForeignKey('photos.id', ondelete='CASCADE')),
-    Column('tag', Integer, ForeignKey('tags.id', ondelete='CASCADE'))
-)
+class UserRole(int, enum.Enum):
+    Admin = 1
+    Moderator = 2
+    User = 3
 
 
 class User(Base):
-    __tablename__ = 'users'
+    __tablename__ = "users"
+
     id = Column(Integer, primary_key=True)
-    username = Column(String(150), nullable=False)
-    firstname = Column(String(100))
-    lastname = Column(String(100))
-    email = Column(String(100), nullable=False, unique=True)
-    password = Column(String(20), nullable=False)
-    token = Column(String(150))
-    role = Column(String(20), nullable=False)
-    avatar = Column(String(255))
-    is_verify = Column(Boolean, default=False)
+    username = Column(String(50), unique=True)
+    first_name = Column(String(70))
+    last_name = Column(String(70))
+    email = Column(String(250), unique=True)
+    password = Column(String(255), nullable=False)
+    refresh_token = Column(String(255), nullable=True)
+    created_at = Column('created_at', DateTime, default=func.now())
+    updated_at = Column('updated_at', DateTime, default=func.now())
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime)
-
-    photos = relationship('Photo', cascade='all, delete', backref='users')
-    comments = relationship('Comment', cascade='all, delete', backref='users')
-    rates = relationship('Rate', cascade='all, delete', backref='users')
+    user_role = Column(Integer, default=UserRole.User.name)
 
 
-class Photo(Base):
-    __tablename__ = 'photos'
+post_tag = Table('post_tag',
+                 Base.metadata,
+                 Column("id", Integer, primary_key=True),
+                 Column("post", Integer, ForeignKey(
+                     "posts.id", ondelete="CASCADE")),
+                 Column("tag", Integer, ForeignKey(
+                     "tags.id", ondelete="CASCADE")),
+                 )
+
+
+class Post(Base):
+    __tablename__ = "posts"
+
     id = Column(Integer, primary_key=True)
-    url = Column(String(255), nullable=False)
-    description = Column(String(255))
-    modify_url = Column(String(255))
-    created_at = Column(DateTime, default=func.now)
-    updated_at = Column(DateTime)
-    user_id = Column(Integer, ForeignKey(User.id, ondelete='CASCADE'))
-
-    tags = relationship('Tag', secondary=photo_m2m_tag, backref='photos', passive_deletes=True)
-    comments = relationship('Comment', cascade='all, delete', backref='photos')
-    rates = relationship('Rate', cascade='all, delete', backref='photos')
-
-
-class Tag(Base):
-    __tablename__ = 'tags'
-    id = Column(Integer, primary_key=True)
-    tag_name = Column(String(20), nullable=False, index=True)
-    created_at = Column(DateTime, default=func.now)
-    updated_at = Column(DateTime)
+    photo_url = Column(String())
+    description = Column(Text)
+    created_at = Column('created_at', DateTime, default=func.now())
+    updated_at = Column('updated_at', DateTime, default=func.now())
+    user_id = Column(Integer, ForeignKey(User.id, ondelete="CASCADE"))
+    marked = Column(Boolean, default=False)  # deletion mark
+    marked = Column(Boolean)  # deletion mark
+    tags = relationship("Tag", secondary=post_tag,
+                        backref="posts", passive_deletes=True)
+    user = relationship('User', backref="photos")
 
 
 class Comment(Base):
-    __tablename__ = 'comments'
+    __tablename__ = "comments"
+
     id = Column(Integer, primary_key=True)
-    comment = Column(String(255), nullable=False)
-    created_at = Column(DateTime, default=func.now)
-    updated_at = Column(DateTime)
-    user_id = Column(Integer, ForeignKey(User.id, ondelete='CASCADE'))
-    photo_id = Column(Integer, ForeignKey(Photo.id, ondelete='CASCADE'))
+    comment_text = Column(Text)
+    created_at = Column('created_at', DateTime, default=func.now())
+    updated_at = Column('updated_at', DateTime)
+
+    post_id = Column(Integer, ForeignKey(Post.id, ondelete="CASCADE"))
+    user_id = Column(Integer, ForeignKey(User.id))
+
+    user = relationship('User', backref="comments")
+    post = relationship('Post', backref="comments")
 
 
-class Rate(Base):
-    __tablename__ = 'rates'
+class Tag(Base):
+    __tablename__ = "tags"
+
     id = Column(Integer, primary_key=True)
-    rate = Column(Integer, nullable=False)
-    created_at = Column(DateTime, default=func.now)
-    updated_at = Column(DateTime)
-    user_id = Column(Integer, ForeignKey(User.id, ondelete='CASCADE'))
-    photo_id = Column(Integer, ForeignKey(Photo.id, ondelete='CASCADE'))
+    tag = Column(String(25), unique=True)
+    created_at = Column('created_at', DateTime, default=func.now())
+    updated_at = Column('updated_at', DateTime, default=func.now())
+    user_id = Column(Integer, ForeignKey(User.id, ondelete="CASCADE"))
+
+    user = relationship('User', backref="tags")
 
 
+class TransformPosts(Base):
+    __tablename__ = 'transform_posts'
+
+    id = Column(Integer, primary_key=True)
+    photo_url = Column(String, nullable=False)
+    photo_id = Column(Integer, ForeignKey(Post.id, ondelete="CASCADE"))
+    created_at = Column('created_at', DateTime, default=func.now())
+
+    post = relationship('Post', backref="transform_posts")
+
+
+class RatePost(Base):
+    __tablename__ = 'rates_posts'
+
+    id = Column(Integer, primary_key=True)
+    rate = Column("rate", Integer, default=0)
+    photo_id = Column(Integer, ForeignKey(Post.id, ondelete="CASCADE"))
+    user_id = Column(Integer, ForeignKey(User.id, ondelete="CASCADE"))
+    created_at = Column('created_at', DateTime, default=func.now())
+    updated_at = Column('updated_at', DateTime, default=func.now())
+
+    post = relationship('Post', backref="rates_posts")
+    user = relationship('User', backref="rates_posts")

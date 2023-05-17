@@ -1,15 +1,17 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from src.config.config import settings
+from src.conf.config import settings
 
-engine = create_engine(settings.db_url)
-DBSession = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+DATABASE_URL = settings.postgres_url
+
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 def get_db():
-    db = DBSession()
+    db = SessionLocal()
     try:
         yield db
-    except:
+    finally:
         db.close()
