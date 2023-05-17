@@ -1,4 +1,4 @@
-import uvicorn
+# import uvicorn
 import pathlib
 
 from fastapi import FastAPI, Depends, HTTPException, status
